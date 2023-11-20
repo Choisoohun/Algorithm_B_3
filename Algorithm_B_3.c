@@ -45,8 +45,9 @@ int main() {
         split(line, beforeAlpha, afterAlpha);
 
         // 결과 출력
-        printf("택배현황을 제외한 코드: %s\n", beforeAlpha);
-        printf("택배현황 코드: %s\n", afterAlpha);
+        printf("날짜: %.8s\n", beforeAlpha); // 앞의 8글자를 날짜로 출력
+        printf("지역: %.s%s\n", 8, beforeAlpha + 8); //나머지를 지역으로 출력
+        printf("택배현황: %s\n", afterAlpha);      // 나머지를 "지역"으로 출력
     }
 
     // 파일 닫기
