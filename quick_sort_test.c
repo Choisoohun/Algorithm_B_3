@@ -28,11 +28,11 @@ int main() {
         return 1;
     }
 
-    struct Parcel parcels[1000]; // 택배 리스트를 저장할 배열
+    struct Parcel parcels[50]; // 택배 리스트를 저장할 배열
     int count = 0;
 
     // 파일에서 데이터 읽어오기
-    while (fscanf(file, "%s", parcels[count].code) == 1 && count < 1000) {
+    while (fscanf(file, "%s", parcels[count].code) == 1 && count < 50) {
         count++;
     }
 
