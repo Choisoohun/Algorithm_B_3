@@ -1,9 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 struct Parcel {
     char code[15];
 };
+
+// Forward declaration
+int partition(struct Parcel arr[], int low, int high);
 
 // 문자열에서 날짜를 추출하여 정수로 반환
 int extractDate(char *str) {
@@ -11,6 +15,51 @@ int extractDate(char *str) {
     strncpy(datePart, str, 8);
     datePart[8] = '\0'; // 문자열 마지막에 널 문자 추가
     return atoi(datePart);
+}
+
+void quickSort(struct Parcel arr[], int low, int high);
+
+int partition(struct Parcel arr[], int low, int high);
+
+int main() {
+    FILE *file = fopen("Delivery_list.csv", "r");
+    if (file == NULL) {
+        perror("Error opening file");
+        return 1;
+    }
+
+    struct Parcel parcels[1000]; // 택배 리스트를 저장할 배열
+    int count = 0;
+
+    // 파일에서 데이터 읽어오기
+    while (fscanf(file, "%s", parcels[count].code) == 1 && count < 1000) {
+        count++;
+    }
+
+    fclose(file);
+
+    // 퀵 정렬 수행
+    quickSort(parcels, 0, count - 1);
+
+    // 정렬된 데이터를 새로운 CSV 파일에 쓰기
+    FILE *outputFile = fopen("sorted_parcels.csv", "w");
+    if (outputFile == NULL) {
+        perror("Error opening output file");
+        return 1;
+    }
+
+    for (int i = 0; i < count; i++) {
+        fprintf(outputFile, "%s\n", parcels[i].code);
+    }
+
+    fclose(outputFile);
+
+    // 정렬된 결과 출력
+    for (int i = 0; i < count; i++) {
+        printf("%s\n", parcels[i].code);
+    }
+
+    return 0;
 }
 
 void quickSort(struct Parcel arr[], int low, int high) {
@@ -41,46 +90,4 @@ int partition(struct Parcel arr[], int low, int high) {
     arr[high] = temp;
 
     return i + 1;
-}
-
-int main() {
-    FILE *file = fopen("Delivery_list.csv", "r");
-    if (file == NULL) {
-        perror("Error opening file");
-        return 1;
-    }
-
-    struct Parcel parcels[50]; // 택배 리스트를 저장할 배열
-    int count = 0;
-
-    // 파일에서 데이터 읽어오기
-    while (fscanf(file, "%s", parcels[count].code) == 1 && count < 1000) {
-        count++;
-    }
-
-    fclose(file);
-
-    // 퀵 정렬 수행
-    quickSort(parcels, 0, count - 1);
-
-    // 정렬된 데이터를 새로운 CSV 파일에 쓰기
-    FILE *outputFile = fopen("sorted_parcels.csv", "w");
-    if (outputFile == NULL) {
-        perror("Error opening output file");
-        free(parcels);
-        return 1;
-    }
-
-    for (int i = 0; i < count; i++) {
-        fprintf(outputFile, "%s\n", parcels[i].code);
-    }
-
-    fclose(outputFile);
-
-    // 정렬된 결과 출력
-    for (int i = 0; i < count; i++) {
-        printf("%s\n", parcels[i].code);
-    }
-
-    return 0;
 }
