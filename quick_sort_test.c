@@ -11,6 +11,9 @@ struct Parcel {
     char deliveryStatus[3];
 };
 
+// 비교 함수 포인터 타입 정의
+typedef int (*CompareFunction)(struct Parcel, struct Parcel);
+
 int extractYear(char *code) {
     char yearPart[5];
     strncpy(yearPart, code, 4);
@@ -39,9 +42,6 @@ int extractArrivalRegion(char *code) {
     return atoi(arrivalPart);
 }
 
-// 비교 함수 포인터 타입 정의
-typedef int (*CompareFunction)(struct Parcel, struct Parcel);
-
 int compareByYear(struct Parcel a, struct Parcel b) {
     return a.year - b.year;
 }
@@ -58,17 +58,13 @@ int compareByArrivalRegion(struct Parcel a, struct Parcel b) {
     return a.arrivalRegion - b.arrivalRegion;
 }
 
-// 정렬 함수
-void sortParcels(struct Parcel parcels[], int count, CompareFunction compareFunction) {
-    quickSort(parcels, 0, count - 1, compareFunction);
-}
+void quickSort(struct Parcel arr[], int low, int high, CompareFunction compareFunction);
 
-// 정렬된 데이터 출력 함수
-void printSortedParcels(struct Parcel parcels[], int count) {
-    for (int i = 0; i < count; i++) {
-        printf("%s\n", parcels[i].code);
-    }
-}
+int partition(struct Parcel arr[], int low, int high, CompareFunction compareFunction);
+
+void sortParcels(struct Parcel parcels[], int count, CompareFunction compareFunction);
+
+void printSortedParcels(struct Parcel parcels[], int count);
 
 int main() {
     FILE *file = fopen("Delivery_list.csv", "r");
@@ -134,3 +130,21 @@ int main() {
 
     return 0;
 }
+
+void quickSort(struct Parcel arr[], int low, int high, CompareFunction compareFunction) {
+    if (low < high) {
+        int pi = partition(arr, low, high, compareFunction);
+
+        quickSort(arr, low, pi - 1, compareFunction);
+        quickSort(arr, pi + 1, high, compareFunction);
+    }
+}
+
+int partition(struct Parcel arr[], int low, int high, CompareFunction compareFunction) {
+    struct Parcel pivot = arr[high];
+    int i = low - 1;
+
+    for (int j = low; j < high; j++) {
+        if (compareFunction(arr[j], pivot) < 0) {
+            i++;
+            struct Parcel temp
