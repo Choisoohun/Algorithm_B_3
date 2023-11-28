@@ -42,6 +42,7 @@ int extractArrivalRegion(char *code) {
     return atoi(arrivalPart);
 }
 
+// 비교 함수들
 int compareByYear(struct Parcel a, struct Parcel b) {
     return a.year - b.year;
 }
@@ -58,13 +59,42 @@ int compareByArrivalRegion(struct Parcel a, struct Parcel b) {
     return a.arrivalRegion - b.arrivalRegion;
 }
 
-void quickSort(struct Parcel arr[], int low, int high, CompareFunction compareFunction);
+// 정렬 함수
+void quickSort(struct Parcel arr[], int low, int high, CompareFunction compareFunction) {
+    if (low < high) {
+        int pi = partition(arr, low, high, compareFunction);
 
-int partition(struct Parcel arr[], int low, int high, CompareFunction compareFunction);
+        quickSort(arr, low, pi - 1, compareFunction);
+        quickSort(arr, pi + 1, high, compareFunction);
+    }
+}
 
-void sortParcels(struct Parcel parcels[], int count, CompareFunction compareFunction);
+int partition(struct Parcel arr[], int low, int high, CompareFunction compareFunction) {
+    struct Parcel pivot = arr[high];
+    int i = low - 1;
 
-void printSortedParcels(struct Parcel parcels[], int count);
+    for (int j = low; j < high; j++) {
+        if (compareFunction(arr[j], pivot) < 0) {
+            i++;
+            struct Parcel temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+    }
+
+    struct Parcel temp = arr[i + 1];
+    arr[i + 1] = arr[high];
+    arr[high] = temp;
+
+    return i + 1;
+}
+
+// 정렬된 데이터 출력 함수
+void printSortedParcels(struct Parcel parcels[], int count) {
+    for (int i = 0; i < count; i++) {
+        printf("%s\n", parcels[i].code);
+    }
+}
 
 int main() {
     FILE *file = fopen("Delivery_list.csv", "r");
@@ -122,7 +152,7 @@ int main() {
     }
 
     // 정렬
-    sortParcels(parcels, count, compareFunction);
+    quickSort(parcels, 0, count - 1, compareFunction);
 
     // 정렬된 데이터 출력
     printf("\nSorted Parcels:\n");
@@ -130,21 +160,3 @@ int main() {
 
     return 0;
 }
-
-void quickSort(struct Parcel arr[], int low, int high, CompareFunction compareFunction) {
-    if (low < high) {
-        int pi = partition(arr, low, high, compareFunction);
-
-        quickSort(arr, low, pi - 1, compareFunction);
-        quickSort(arr, pi + 1, high, compareFunction);
-    }
-}
-
-int partition(struct Parcel arr[], int low, int high, CompareFunction compareFunction) {
-    struct Parcel pivot = arr[high];
-    int i = low - 1;
-
-    for (int j = low; j < high; j++) {
-        if (compareFunction(arr[j], pivot) < 0) {
-            i++;
-            struct Parcel temp
