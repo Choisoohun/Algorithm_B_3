@@ -14,87 +14,21 @@ struct Parcel {
 // 비교 함수 포인터 타입 정의
 typedef int (*CompareFunction)(struct Parcel, struct Parcel);
 
-int extractYear(char *code) {
-    char yearPart[5];
-    strncpy(yearPart, code, 4);
-    yearPart[4] = '\0';
-    return atoi(yearPart);
-}
+int extractYear(char *code);
+int extractDate(char *code);
+int extractDepartureRegion(char *code);
+int extractArrivalRegion(char *code);
 
-int extractDate(char *code) {
-    char datePart[3];
-    strncpy(datePart, code + 4, 2);
-    datePart[2] = '\0';
-    return atoi(datePart);
-}
+int compareByYear(struct Parcel a, struct Parcel b);
+int compareByDate(struct Parcel a, struct Parcel b);
+int compareByDepartureRegion(struct Parcel a, struct Parcel b);
+int compareByArrivalRegion(struct Parcel a, struct Parcel b);
 
-int extractDepartureRegion(char *code) {
-    char departurePart[3];
-    strncpy(departurePart, code + 6, 3);
-    departurePart[3] = '\0';
-    return atoi(departurePart);
-}
+void quickSort(struct Parcel arr[], int low, int high, CompareFunction compareFunction);
+int partition(struct Parcel arr[], int low, int high, CompareFunction compareFunction);
 
-int extractArrivalRegion(char *code) {
-    char arrivalPart[3];
-    strncpy(arrivalPart, code + 9, 3);
-    arrivalPart[3] = '\0';
-    return atoi(arrivalPart);
-}
-
-// 비교 함수들
-int compareByYear(struct Parcel a, struct Parcel b) {
-    return a.year - b.year;
-}
-
-int compareByDate(struct Parcel a, struct Parcel b) {
-    return a.date - b.date;
-}
-
-int compareByDepartureRegion(struct Parcel a, struct Parcel b) {
-    return a.departureRegion - b.departureRegion;
-}
-
-int compareByArrivalRegion(struct Parcel a, struct Parcel b) {
-    return a.arrivalRegion - b.arrivalRegion;
-}
-
-// 정렬 함수
-void quickSort(struct Parcel arr[], int low, int high, CompareFunction compareFunction) {
-    if (low < high) {
-        int pi = partition(arr, low, high, compareFunction);
-
-        quickSort(arr, low, pi - 1, compareFunction);
-        quickSort(arr, pi + 1, high, compareFunction);
-    }
-}
-
-int partition(struct Parcel arr[], int low, int high, CompareFunction compareFunction) {
-    struct Parcel pivot = arr[high];
-    int i = low - 1;
-
-    for (int j = low; j < high; j++) {
-        if (compareFunction(arr[j], pivot) < 0) {
-            i++;
-            struct Parcel temp = arr[i];
-            arr[i] = arr[j];
-            arr[j] = temp;
-        }
-    }
-
-    struct Parcel temp = arr[i + 1];
-    arr[i + 1] = arr[high];
-    arr[high] = temp;
-
-    return i + 1;
-}
-
-// 정렬된 데이터 출력 함수
-void printSortedParcels(struct Parcel parcels[], int count) {
-    for (int i = 0; i < count; i++) {
-        printf("%s\n", parcels[i].code);
-    }
-}
+void sortParcels(struct Parcel parcels[], int count, CompareFunction compareFunction);
+void printSortedParcels(struct Parcel parcels[], int count);
 
 int main() {
     FILE *file = fopen("Delivery_list.csv", "r");
@@ -159,4 +93,62 @@ int main() {
     printSortedParcels(parcels, count);
 
     return 0;
+}
+
+// 여기서부터 아래로 partition 함수와 다른 함수들의 정의가 있습니다.
+
+// 비교 함수들
+int compareByYear(struct Parcel a, struct Parcel b) {
+    return a.year - b.year;
+}
+
+int compareByDate(struct Parcel a, struct Parcel b) {
+    return a.date - b.date;
+}
+
+int compareByDepartureRegion(struct Parcel a, struct Parcel b) {
+    return a.departureRegion - b.departureRegion;
+}
+
+int compareByArrivalRegion(struct Parcel a, struct Parcel b) {
+    return a.arrivalRegion - b.arrivalRegion;
+}
+
+void quickSort(struct Parcel arr[], int low, int high, CompareFunction compareFunction) {
+    if (low < high) {
+        int pi = partition(arr, low, high, compareFunction);
+
+        quickSort(arr, low, pi - 1, compareFunction);
+        quickSort(arr, pi + 1, high, compareFunction);
+    }
+}
+
+int partition(struct Parcel arr[], int low, int high, CompareFunction compareFunction) {
+    struct Parcel pivot = arr[high];
+    int i = low - 1;
+
+    for (int j = low; j < high; j++) {
+        if (compareFunction(arr[j], pivot) < 0) {
+            i++;
+            struct Parcel temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+    }
+
+    struct Parcel temp = arr[i + 1];
+    arr[i + 1] = arr[high];
+    arr[high] = temp;
+
+    return i + 1;
+}
+
+void sortParcels(struct Parcel parcels[], int count, CompareFunction compareFunction) {
+    quickSort(parcels, 0, count - 1, compareFunction);
+}
+
+void printSortedParcels(struct Parcel parcels[], int count) {
+    for (int i = 0; i < count; i++) {
+        printf("%s\n", parcels[i].code);
+    }
 }
