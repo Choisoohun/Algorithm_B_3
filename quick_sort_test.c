@@ -107,7 +107,7 @@ int main() {
     // 파일에서 한 줄씩 읽어와서 출력
     while (fgets(line, sizeof(line), file) != NULL && parcelCount < MAX_PARCELS) {
         // 함수 호출하여 알파벳 나오기 전과 나온 후로 분리
-                char beforeAlpha[MAX_LINE_SIZE];
+        char beforeAlpha[MAX_LINE_SIZE];
         char afterAlpha[MAX_LINE_SIZE];
         split(line, beforeAlpha, afterAlpha);
 
@@ -142,25 +142,25 @@ int main() {
             return 1;
     }
 
-    // 정렬된 데이터 출력
-    printf("\nSorted Parcels:\n");
-    for (int i = 0; i < parcelCount; i++) {
-        char from[MAX_LINE_SIZE];
-        char to[MAX_LINE_SIZE];
+        // 정렬된 데이터 출력
+        printf("Sorted Parcels:\n");
+        for (int i = 0; i < parcelCount; i++) {
+            char from[MAX_LINE_SIZE];
+            char to[MAX_LINE_SIZE];
 
-        convertNumberToString(parcels[i].regionNumbers, from);
-        convertNumberToString(parcels[i].regionNumbers + REGION_CODE_SIZE, to);
+            convertNumberToString(parcels[i].regionNumbers, from);
+            convertNumberToString(parcels[i].regionNumbers + REGION_CODE_SIZE, to);
 
-        printf("Date: %s\n", parcels[i].date);
-        printf("Departure Region: %s\n", from);
-        printf("Arrival Region: %s\n", to);
-        printf("Delivery Status: %s\n", parcels[i].status);
-        printf("\n");
+            printf("Date: %s\n", parcels[i].date);
+            printf("Departure Region: %s\n", from);
+            printf("Arrival Region: %s\n", to);
+            printf("Delivery Status: %s\n", parcels[i].status);
+            printf("\n");
+        }
+
+        // 파일 닫기
+        fclose(file);
+
+        return 0;
     }
-
-    // 파일 닫기
-    fclose(file);
-
-    return 0;
-}
 
