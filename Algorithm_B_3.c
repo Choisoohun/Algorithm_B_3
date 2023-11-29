@@ -12,24 +12,7 @@ typedef struct {
 
 // 지역번호를 지역 이름으로 변환하는 함수
 const char* convert(const char* code) {
-    if (strcmp(code, "02") == 0) return "서울";
-    if (strcmp(code, "031") == 0) return "경기";
-    if (strcmp(code, "032") == 0) return "인천";
-    if (strcmp(code, "033") == 0) return "강원";
-    if (strcmp(code, "041") == 0) return "충남";
-    if (strcmp(code, "042") == 0) return "대전";
-    if (strcmp(code, "043") == 0) return "충북";
-    if (strcmp(code, "044") == 0) return "세종";
-    if (strcmp(code, "051") == 0) return "부산";
-    if (strcmp(code, "052") == 0) return "울산";
-    if (strcmp(code, "053") == 0) return "대구";
-    if (strcmp(code, "054") == 0) return "경북";
-    if (strcmp(code, "055") == 0) return "경남";
-    if (strcmp(code, "061") == 0) return "전남";
-    if (strcmp(code, "062") == 0) return "광주";
-    if (strcmp(code, "063") == 0) return "전북";
-    if (strcmp(code, "064") == 0) return "제주";
-    return "알 수 없음";
+    // ... 이전과 동일한 convert 함수 ...
 }
 
 int main() {
@@ -45,6 +28,9 @@ int main() {
 
     // 한 줄씩 읽어오기
     char line[20];
+    char **dates = NULL, **froms = NULL, **tos = NULL, **situations = NULL;
+    int count = 0;
+
     while (fgets(line, sizeof(line), file) != NULL) {
         // 줄 끝의 개행 문자 제거
         line[strcspn(line, "\n")] = 0;
@@ -52,16 +38,16 @@ int main() {
         // 구조체 인스턴스 생성
         Delivery_code delivery;
 
-        // line문자열의 처음 8글자를 날짜로 추출
+        // line문자열의 처음 8글자를 날짜로 추출 및 NULL 추가
         strncpy(delivery.date, line, 8);
-        delivery.date[8] = '\0'; // NULL 문자 추가
+        delivery.date[8] = '\0';
 
-        // 택배 현황 추출
+        // 택배 현황 추출 및 NULL 추가
         int line_len = strlen(line);    
-        strncpy(delivery.situation, line + line_len - 3, 3);    // line + line_len은 문자열의 끝을 가리킴
+        strncpy(delivery.situation, line + line_len - 3, 3);
         delivery.situation[3] = '\0';
 
-        // 출발지 추출 (서울인 경우 '02', 그렇지 않은 경우 3글자)
+        // 출발지 추출 및 NULL 추가
         if (line[8] == '0' && line[9] == '2') {
             strncpy(delivery.from, line + 8, 2);
             delivery.from[2] = '\0';
@@ -70,29 +56,69 @@ int main() {
             delivery.from[3] = '\0';
         }
 
-        // 도착지 추출
+        // 도착지 추출 및 NULL 추가
         int toStartIndex = (delivery.from[1] == '2' && strlen(delivery.from) == 2) ? 10 : 11;
         if (line[toStartIndex] == '0' && line[toStartIndex + 1] == '2') {
-            // 도착지가 서울인 경우
             strncpy(delivery.to, line + toStartIndex, 2);
             delivery.to[2] = '\0';
         } else {
-            // 도착지가 서울이 아닌 경우
             strncpy(delivery.to, line + toStartIndex, 3);
             delivery.to[3] = '\0';
         }
 
-        // 지역번호를 지역 이름으로 변환
+        // 지역번호를 지역이름으로 변환
         const char* fromName = convert(delivery.from);
         const char* toName = convert(delivery.to);
 
-        // 구조체 내용 출력
-        printf("날짜: %s, 출발지: %s, 도착지: %s, 택배현황: %s\n",
-               delivery.date, fromName, toName, delivery.situation);
+        // 동적 메모리 할당 및 데이터 복사
+        dates = realloc(dates, sizeof(char*) * (count + 1));
+        froms = realloc(froms, sizeof(char*) * (count + 1));
+        tos = realloc(tos, sizeof(char*) * (count + 1));
+        situations = realloc(situations, sizeof(char*) * (count + 1));
+
+        dates[count] = strdup(delivery.date);
+        froms[count] = strdup(fromName);
+        tos[count] = strdup(toName);
+        situations[count] = strdup(delivery.situation);
+
+        count++;
     }
 
-    // 파일 닫기
     fclose(file);
+
+    // 사용자에게 보고 싶은 정보 선택
+    printf("조회하려는 정보를 선택하세요. (1: 날짜, 2: 출발지, 3: 도착지, 4: 택배현황)\n");
+    int choice;
+    scanf("%d", &choice);
+
+    for (int i = 0; i < count; i++) {
+        switch (choice) {
+            case 1:
+                printf("%s\n", dates[i]);
+                break;
+            case 2:
+                printf("%s\n", froms[i]);
+                break;
+            case 3:
+                printf("%s\n", tos[i]);
+                break;
+            case 4:
+                printf("%s\n", situations[i]);
+                break;
+        }
+    }
+
+    // 메모리 해제
+    for (int i = 0; i < count; i++) {
+        free(dates[i]);
+        free(froms[i]);
+        free(tos[i]);
+        free(situations[i]);
+    }
+    free(dates);
+    free(froms);
+    free(tos);
+    free(situations);
 
     return 0;
 }
