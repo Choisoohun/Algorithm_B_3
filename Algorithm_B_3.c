@@ -11,28 +11,123 @@ typedef struct {
     char situation[4];   // 3글자의 택배현황 + NULL 문자
 } Delivery_code;
 
-int compare_dates(const void *a, const void *b) {       //a와 b를 비교하는 함수
-    const Delivery_code *da = (const Delivery_code *)a;     //a를 da에 삽입
-    const Delivery_code *db = (const Delivery_code *)b;     //b를 db에 삽입
-    return strcmp(da->date, db->date);      //string compare - 왼쪽이 크면 음수반환, 같으면 0, 오른쪽이 크면 양수 반환
+// 배열의 가장 오른쪽 요소를 pivot으로 잡고 
+int partition(Delivery_code data[], int left, int right) {  //int left = 0, int right = 배열의 개수 -1
+    Delivery_code pivot = data[right]; // 피벗을 배열의 오른쪽 끝 요소로 선택
+    int i = left - 1; // i = -1
+
+    for (int j = left; j < right; j++) {  //j는 배열의 첫번째 요소, 배열의 가장 왼쪽 요소부터 피벗 전까지 순회(전부 순회)
+        // 현재 요소(date[j])보다 pivot이 크면 교환
+        if (strcmp(data[j].date, pivot.date) <= 0) {    //strcmp: 두 문자열이 같으면 0, 첫 번째 문자열이 사전 순으로 두 번째 문자열보다 앞에 있으면 음수, 뒤에 있으면 양수를 반환 => pivot이 더 크면
+            i++;
+            // data[i]와 data[j]를 교환
+            Delivery_code temp = data[i];
+            data[i] = data[j];
+            data[j] = temp;
+        }
+    }
+
+    // 피벗과 i+1 위치의 요소(data[i+1])를 교환하여 피벗을 정렬된 위치로 이동
+    Delivery_code temp = data[i + 1];
+    data[i + 1] = data[right];
+    data[right] = temp;
+
+    return i + 1; // 피벗의 최종 위치를 반환
 }
 
-int compare_froms(const void *a, const void *b) {
-    const Delivery_code *da = (const Delivery_code *)a;
-    const Delivery_code *db = (const Delivery_code *)b;
-    return strcmp(da->from, db->from);
+int partition_by_from(Delivery_code data[], int left, int right) {
+    Delivery_code pivot = data[right]; // 피벗을 배열의 오른쪽 끝 요소로 선택
+    int i = left - 1; // i를 피벗보다 작은 요소들을 저장하기 위한 인덱스로 초기화
+
+    for (int j = left; j < right; j++) {      
+        // 현재 요소가 피벗보다 작거나 같으면
+        if (strcmp(data[j].from, pivot.from) <= 0) { 
+            i++; // i를 증가시키고
+            // data[i]와 data[j]를 교환
+            Delivery_code temp = data[i];
+            data[i] = data[j];
+            data[j] = temp;
+        }
+    }
+
+    // 피벗과 i+1 위치의 요소(data[i+1])를 교환하여 피벗을 정렬된 위치로 이동
+    Delivery_code temp = data[i + 1];
+    data[i + 1] = data[right];
+    data[right] = temp;
+
+    return i + 1; // 피벗의 최종 위치를 반환
 }
 
-int compare_tos(const void *a, const void *b) {
-    const Delivery_code *da = (const Delivery_code *)a;
-    const Delivery_code *db = (const Delivery_code *)b;
-    return strcmp(da->to, db->to);
+int partition_by_to(Delivery_code data[], int left, int right) {
+    Delivery_code pivot = data[right];
+    int i = left - 1;
+
+    for (int j = left; j < right; j++) {
+        if (strcmp(data[j].to, pivot.to) <= 0) {
+            i++;
+            Delivery_code temp = data[i];
+            data[i] = data[j];
+            data[j] = temp;
+        }
+    }
+
+    Delivery_code temp = data[i + 1];
+    data[i + 1] = data[right];
+    data[right] = temp;
+
+    return i + 1;
 }
 
-int compare_situations(const void *a, const void *b) {
-    const Delivery_code *da = (const Delivery_code *)a;
-    const Delivery_code *db = (const Delivery_code *)b;
-    return strcmp(da->situation, db->situation);
+int partition_by_situation(Delivery_code data[], int left, int right) {
+    Delivery_code pivot = data[right];
+    int i = left - 1;
+
+    for (int j = left; j < right; j++) {
+        if (strcmp(data[j].situation, pivot.situation) <= 0) {
+            i++;
+            Delivery_code temp = data[i];
+            data[i] = data[j];
+            data[j] = temp;
+        }
+    }
+
+    Delivery_code temp = data[i + 1];
+    data[i + 1] = data[right];
+    data[right] = temp;
+
+    return i + 1;
+}
+
+void quick_sort(Delivery_code data[], int left, int right) {
+    if (left < right) {     
+        int q = partition(data, left, right);       //partition 배열을 q에 저장
+        quick_sort(data, left, q - 1);              //피벗 기준 왼쪽 정렬
+        quick_sort(data, q + 1, right);             //피벗 기준 오른쪽 정렬
+    }
+}
+
+void quick_sort_by_from(Delivery_code data[], int left, int right) {
+    if (left < right) {
+        int q = partition_by_from(data, left, right);
+        quick_sort_by_from(data, left, q - 1);
+        quick_sort_by_from(data, q + 1, right);
+    }
+}
+
+void quick_sort_by_to(Delivery_code data[], int left, int right) {
+    if (left < right) {
+        int q = partition_by_to(data, left, right);
+        quick_sort_by_to(data, left, q - 1);
+        quick_sort_by_to(data, q + 1, right);
+    }
+}
+
+void quick_sort_by_situation(Delivery_code data[], int left, int right) {
+    if (left < right) {
+        int q = partition_by_situation(data, left, right);
+        quick_sort_by_situation(data, left, q - 1);
+        quick_sort_by_situation(data, q + 1, right);
+    }
 }
 
 void append_to_csv(const char *file_path, const char *line) {
@@ -82,6 +177,7 @@ void reset_default_list() {
     }
     fclose(file);  // 파일을 쓰기 모드로 열고 바로 닫으면 내용이 초기화됨
     printf("Default 리스트가 초기화되었습니다.\n");
+
 }
 
 int main() {
@@ -168,18 +264,18 @@ int main() {
         int sort_choice;
         scanf("%d", &sort_choice);
 
-        switch(sort_choice) {
+        switch (sort_choice) {
             case 1:
-                qsort(deliveries, count, sizeof(Delivery_code), compare_dates);
+                quick_sort(deliveries, 0, count - 1); // 날짜를 기준으로 퀵 정렬 수행
                 break;
             case 2:
-                qsort(deliveries, count, sizeof(Delivery_code), compare_froms);
+                quick_sort_by_from(deliveries, 0, count - 1); // 출발지를 기준으로 퀵 정렬 수행
                 break;
             case 3:
-                qsort(deliveries, count, sizeof(Delivery_code), compare_tos);
+                quick_sort_by_to(deliveries, 0, count - 1); // 도착지를 기준으로 퀵 정렬 수행
                 break;
             case 4:
-                qsort(deliveries, count, sizeof(Delivery_code), compare_situations);
+                quick_sort_by_situation(deliveries, 0, count - 1); // 택배현황을 기준으로 퀵 정렬 수행
                 break;
         }
 
@@ -188,7 +284,7 @@ int main() {
         }
     } else if (choice == 4) {
         char search_date[9];
-        printf("조회할 날짜를 입력하세요 (YYYYMMDD 형식): ");
+        printf("조회할 날짜를 입력하세요 (ex20230101): ");
         scanf("%s", search_date);
 
         printf("%s에 가야할 목적지와 택배현황:\n", search_date);
@@ -203,20 +299,20 @@ int main() {
     scanf("%s", new_entry);
 
     int len = strlen(new_entry);
-    int is_valid = 1; // 유효성 검사 변수
+    int v = 1; // 유효성 검사 변수
 
     // 마지막에서 세 번째 문자가 알파벳이고, 나머지 문자가 숫자인지 확인
-    if (!(len >= 15 && len <= 17 && isalpha(new_entry[len - 3]))) {
-        is_valid = 0;
+    if (!(len >= 15 && len <= 17 && isalpha(new_entry[len - 3]))) {     //입력 문자열의 길이가 15에서 17 사이인지 and 문자열의 마지막에서 세 번째 문자가 알파벳인지
+        v = 0;
     }
     for (int i = 0; i < len; i++) {
-        if (i != len - 3 && !isdigit(new_entry[i])) {
-            is_valid = 0;
+        if (i != len - 3 && !isdigit(new_entry[i])) {           //마지막 3번째 문자빼고 모든 문자가 숫자인지 검사
+            v = 0;
             break;
         }
     }
 
-    if (is_valid) {
+    if (v) {
         append_to_csv("Delivery_list.csv", new_entry);
     } else {
         append_to_default_list(new_entry);
